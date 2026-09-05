@@ -95,6 +95,51 @@
     z-index: 2;
   }
 
+  /* Buttons sit at the same spot on every slide, so they stay put across
+     transitions instead of crossfading — only their label swaps. */
+  .hero-actions-frame {
+    position: absolute;
+    inset: 0;
+    max-width: 1440px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 64px;
+    align-items: center;
+    padding: 72px 80px 28px 40px;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .hero-actions-frame__text {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .hero-actions-frame__ghost {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    visibility: hidden;
+  }
+
+  .hero-actions-frame .hero-actions {
+    pointer-events: auto;
+  }
+
+  /* Below 900px, slides swap instantly (no crossfade), so the sticky-button
+     trick is unnecessary — each slide's own buttons are used directly there. */
+  .hero-actions--ghost {
+    visibility: hidden;
+  }
+
+  .btn__label {
+    display: inline-block;
+    transition: opacity .18s var(--ease);
+  }
+  .btn__label.is-swapping { opacity: 0; }
+
   .hero-slide__text {
     display: flex;
     flex-direction: column;
@@ -453,8 +498,11 @@
     .hero-slide.is-active { display: grid; }
     .hero-headline { font-size: 38px; min-height: 0; }
     .hero-accent, .hero-intro { min-height: 0; }
+    .hero-actions { flex-direction: column; align-items: stretch; }
     .media-card, .inquiry-card { height: 280px; }
     .sticky-rail { display: none; }
+    .hero-actions-frame { display: none; }
+    .hero-actions--ghost { visibility: visible; }
     .tagline-bar__inner { padding: 0 20px 28px; }
     .progress-rail { margin-left: 0; }
   }
@@ -483,7 +531,7 @@
             <div class="hero-accent__sub">je vier Minuten</div>
           </div>
           <p class="hero-intro">Dr. Arndt Eversberg erklärt in vier kurzen Folgen, wie AEQUIFIN Ansprüche prüft, Verfahren finanziert und Anwälte sowie Sponsoren zusammenbringt.</p>
-          <div class="hero-actions">
+          <div class="hero-actions hero-actions--ghost">
             <button class="btn btn--primary">Video ansehen</button>
             <button class="btn btn--secondary">Alle Folgen</button>
           </div>
@@ -507,7 +555,7 @@
             <div class="hero-accent__sub">aktuell in Prüfung</div>
           </div>
           <p class="hero-intro">Anwälte erhalten Mandate mit gesicherter Finanzierung, Sponsoren beteiligen sich an geprüften Fällen mit Erfolgsquote — beides über denselben Marktplatz.</p>
-          <div class="hero-actions">
+          <div class="hero-actions hero-actions--ghost">
             <button class="btn btn--primary">Marktplatz öffnen</button>
             <button class="btn btn--secondary">Für Sponsoren</button>
           </div>
@@ -526,7 +574,7 @@
             <div class="hero-accent__sub">bis zur Einschätzung</div>
           </div>
           <p class="hero-intro">Beantworten Sie acht kurze Fragen zu Ihrem Fall. Unverbindlich, kostenlos, und Ihr Zwischenstand wird gespeichert.</p>
-          <div class="hero-actions">
+          <div class="hero-actions hero-actions--ghost">
             <button class="btn btn--primary">Fallanfrage starten</button>
             <button class="btn btn--secondary">So funktioniert es</button>
           </div>
@@ -542,6 +590,25 @@
           <button class="btn btn--primary btn--block">Fallanfrage starten</button>
         </div>
       </article>
+
+      <div class="hero-actions-frame">
+        <div class="hero-actions-frame__text">
+          <div class="hero-actions-frame__ghost" aria-hidden="true">
+            <div class="hero-kicker">.</div>
+            <h2 class="hero-headline">.<br>.</h2>
+            <hr class="hero-divider">
+            <div class="hero-accent">
+              <div class="hero-accent__lead">.</div>
+              <div class="hero-accent__sub">.</div>
+            </div>
+            <p class="hero-intro">.</p>
+          </div>
+          <div class="hero-actions">
+            <button class="btn btn--primary" id="stickyCtaPrimary" type="button"><span class="btn__label">Video ansehen</span></button>
+            <button class="btn btn--secondary" id="stickyCtaSecondary" type="button"><span class="btn__label">Alle Folgen</span></button>
+          </div>
+        </div>
+      </div>
 
       <div class="sticky-rail" aria-label="Rollenauswahl">
         <a href="#"><i class="fa fa-handshake-o" aria-hidden="true"></i> Betroffene</a>
@@ -577,6 +644,13 @@
   var segs = Array.prototype.slice.call(rail.querySelectorAll('.progress-seg'));
   var announce = document.getElementById('slideAnnounce');
   var names = ['Videoreihe', 'Marktplatz', 'Fallanfrage'];
+  var ctaData = [
+    { primary: 'Video ansehen', secondary: 'Alle Folgen' },
+    { primary: 'Marktplatz öffnen', secondary: 'Für Sponsoren' },
+    { primary: 'Fallanfrage starten', secondary: 'So funktioniert es' }
+  ];
+  var ctaPrimaryLabel = document.querySelector('#stickyCtaPrimary .btn__label');
+  var ctaSecondaryLabel = document.querySelector('#stickyCtaSecondary .btn__label');
   var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var current = 0;
   var playing = !prefersReducedMotion;
@@ -598,6 +672,17 @@
     });
   }
 
+  function updateActions(index) {
+    ctaPrimaryLabel.classList.add('is-swapping');
+    ctaSecondaryLabel.classList.add('is-swapping');
+    window.setTimeout(function () {
+      ctaPrimaryLabel.textContent = ctaData[index].primary;
+      ctaSecondaryLabel.textContent = ctaData[index].secondary;
+      ctaPrimaryLabel.classList.remove('is-swapping');
+      ctaSecondaryLabel.classList.remove('is-swapping');
+    }, 180);
+  }
+
   function goTo(index) {
     if (index === current) return;
     slides[current].classList.remove('is-active');
@@ -608,6 +693,7 @@
 
     current = index;
     updateProgress(current);
+    updateActions(current);
     announce.textContent = 'Slide ' + (index + 1) + ' von ' + slides.length + ': ' + names[index];
   }
 
