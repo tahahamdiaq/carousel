@@ -199,6 +199,9 @@
     align-items: center;
   }
 
+  /* Same gradient-wipe mechanism as the header's Login/Registration buttons
+     (header-assets/index.css .hdr-button-primary/secondary): a hard-edge
+     50/50 background at 200% width, slid into view via background-position. */
   .btn {
     border-radius: 20px;
     border: 3px solid var(--c-primary);
@@ -206,24 +209,27 @@
     font-size: 16px;
     font-family: inherit;
     cursor: pointer;
-    transition: background-color .2s var(--ease), border-color .2s var(--ease), color .2s var(--ease), transform .1s var(--ease);
+    background-size: 200% 100%;
+    background-position: right bottom;
+    transition: background-position .25s ease-out, color .25s ease-out, transform .1s var(--ease);
   }
+  .btn:hover { background-position: left bottom; }
   .btn:active { transform: scale(.97); }
   .btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--c-focus); }
 
   .btn--primary {
     padding: 15px 32px;
-    background: var(--c-primary);
     color: #fff;
+    background-image: linear-gradient(to right, #fff 50%, var(--c-primary) 50%);
   }
-  .btn--primary:hover { background: var(--c-primary-hover); border-color: var(--c-primary-hover); }
+  .btn--primary:hover { color: var(--c-primary); }
 
   .btn--secondary {
     padding: 15px 28px;
-    background: transparent;
     color: var(--c-primary);
+    background-image: linear-gradient(to right, var(--c-primary) 50%, #fff 50%);
   }
-  .btn--secondary:hover { background: #EAF1F8; }
+  .btn--secondary:hover { color: #fff; }
 
   .btn--block { width: 100%; }
 
@@ -574,9 +580,6 @@
   }
 
   .section-wrap { max-width: 1300px; margin: 0 auto; padding: 64px 24px; }
-  .section-heading { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 32px; }
-  .section-heading h2 { margin: 0; font: 700 28px/1.2 Roboto, sans-serif; letter-spacing: -.02em; color: var(--c-navy); }
-  .section-heading p { margin: 0; font: 400 14px/1.5 Roboto, sans-serif; color: var(--c-text-muted); }
 
   .filter-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
   .filter-tab {
@@ -669,14 +672,24 @@
   }
   .progress-track__fill {
     height: 100%;
+    width: 0;
     background: linear-gradient(90deg, #6FA600, var(--c-green));
-    transition: width .3s var(--ease);
+    transition: width 3s cubic-bezier(.22, 1, .36, 1);
   }
   .progress-track__fill--out,
   .progress-track__fill--split {
     height: 100%;
+    width: 0;
     background: linear-gradient(90deg, #C8102E, #E04357);
-    transition: width .3s var(--ease);
+    transition: width 3s cubic-bezier(.22, 1, .36, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .progress-track__fill,
+    .progress-track__fill--out,
+    .progress-track__fill--split {
+      transition: none;
+    }
   }
 
   .case-card__footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid #EDF1F5; padding-top: 16px; }
@@ -1914,7 +1927,9 @@
             <button class="btn btn--secondary">Für Sponsoren</button>
           </div>
         </div>
-        <div class="media-card">Motiv 16:10 · Level 1</div>
+        <div class="media-card media-card--photo">
+          <img class="media-card__img" src="6874eb7570ec8.png" alt="Marktplatz für geprüfte Verfahren">
+        </div>
       </article>
 
       <!-- Slide 2 — Fallanfrage -->
@@ -2176,9 +2191,9 @@
 
 <!-- ============ Aktuelle Fälle (hardcoded prototype data, redesign per docs/State artboards with filter tabs) ============ -->
 <section class="section-wrap" aria-label="Aktuelle Fälle">
-  <div class="section-heading">
-    <h2>Aktuelle Fälle</h2>
-    <p>Transparent finanzierte Verfahren — Betroffene, Anwälte und Sponsoren an einem Ort.</p>
+  <div class="col-sm-12 text-center disclaimer-margin-top">
+    <h2 class="text-center">Aktuelle Fälle und rechtsklärende Projekte</h2>
+    <hr>
   </div>
 
   <div class="filter-tabs" id="caseFilterTabs" role="tablist" aria-label="Fälle filtern">
@@ -2209,12 +2224,12 @@
           <div class="case-card__pct">54 %<div class="case-card__pct-label">Stufe 4</div></div>
         </div>
         <div class="progress-track">
-          <div class="progress-track__fill" style="width:54%"></div>
-          <div class="progress-track__fill progress-track__fill--out" style="width:46%"></div>
+          <div class="progress-track__fill" data-w="54%" style="width:0"></div>
+          <div class="progress-track__fill progress-track__fill--out" data-w="46%" style="width:0"></div>
         </div>
         <div class="case-card__footer">
           <div><div class="case-card__goal-label">Sponsoring gesamt</div><div class="case-card__goal-value">68.118 €</div></div>
-          <button class="case-card__cta case-card__cta--muted" type="button"><span class="brand-squares brand-squares--dark"><span></span><span></span><span></span></span>Finanziert</button>
+          <button class="case-card__cta case-card__cta--muted" type="button">Finanziert</button>
         </div>
       </div>
     </article>
@@ -2236,10 +2251,10 @@
           <div><div class="case-card__amount">180.867 €</div><div class="case-card__amount-label">Sponsoring aktuell</div></div>
           <div class="case-card__pct">100 %<div class="case-card__pct-label">finanziert</div></div>
         </div>
-        <div class="progress-track"><div class="progress-track__fill" style="width:100%"></div></div>
+        <div class="progress-track"><div class="progress-track__fill" data-w="100%" style="width:0"></div></div>
         <div class="case-card__footer">
           <div><div class="case-card__goal-label">Klageziel</div><div class="case-card__goal-value">4.333.015 €</div></div>
-          <button class="case-card__cta" type="button"><span class="brand-squares"><span></span><span></span><span></span></span>Finanziert</button>
+          <button class="case-card__cta" type="button">Finanziert</button>
         </div>
       </div>
     </article>
@@ -2261,10 +2276,10 @@
           <div><div class="case-card__amount">15.474 €</div><div class="case-card__amount-label">Sponsoring aktuell</div></div>
           <div class="case-card__pct">100 %<div class="case-card__pct-label">finanziert</div></div>
         </div>
-        <div class="progress-track"><div class="progress-track__fill" style="width:100%"></div></div>
+        <div class="progress-track"><div class="progress-track__fill" data-w="100%" style="width:0"></div></div>
         <div class="case-card__footer">
           <div><div class="case-card__goal-label">Klageziel</div><div class="case-card__goal-value" style="color:var(--c-text-muted)">Kein finanzielles Klageziel</div></div>
-          <button class="case-card__cta" type="button"><span class="brand-squares"><span></span><span></span><span></span></span>Finanziert</button>
+          <button class="case-card__cta" type="button">Finanziert</button>
         </div>
       </div>
     </article>
@@ -2286,10 +2301,10 @@
           <div><div class="case-card__amount">158.000 €</div><div class="case-card__amount-label">Sponsoring aktuell</div></div>
           <div class="case-card__pct">118 %<div class="case-card__pct-label">finanziert</div></div>
         </div>
-        <div class="progress-track"><div class="progress-track__fill" style="width:100%"></div></div>
+        <div class="progress-track"><div class="progress-track__fill" data-w="100%" style="width:0"></div></div>
         <div class="case-card__footer">
           <div><div class="case-card__goal-label">Klageziel</div><div class="case-card__goal-value">2.015.000 €</div></div>
-          <button class="case-card__cta" type="button"><span class="brand-squares"><span></span><span></span><span></span></span>Finanziert</button>
+          <button class="case-card__cta" type="button">Finanziert</button>
         </div>
       </div>
     </article>
@@ -2317,12 +2332,12 @@
           <div class="case-card__pct">34 %<div class="case-card__pct-label">finanziert</div></div>
         </div>
         <div class="progress-track">
-          <div class="progress-track__fill" style="width:34%"></div>
-          <div class="progress-track__fill progress-track__fill--out" style="width:66%"></div>
+          <div class="progress-track__fill" data-w="34%" style="width:0"></div>
+          <div class="progress-track__fill progress-track__fill--out" data-w="66%" style="width:0"></div>
         </div>
         <div class="case-card__footer">
           <div><div class="case-card__goal-label">Klageziel</div><div class="case-card__goal-value">1.040.217 €</div></div>
-          <button class="case-card__cta" type="button"><span class="brand-squares"><span></span><span></span><span></span></span>Finanziert</button>
+          <button class="case-card__cta" type="button">Finanziert</button>
         </div>
       </div>
     </article>
@@ -2344,10 +2359,10 @@
           <div><div class="case-card__amount">449.554 €</div><div class="case-card__amount-label">Sponsoring gesamt</div></div>
           <div class="case-card__pct">120 %<div class="case-card__pct-label">finanziert</div></div>
         </div>
-        <div class="progress-track"><div class="progress-track__fill" style="width:100%"></div></div>
+        <div class="progress-track"><div class="progress-track__fill" data-w="100%" style="width:0"></div></div>
         <div class="case-card__footer">
           <div><div class="case-card__goal-label">Klageziel</div><div class="case-card__goal-value">12.000.000 €</div></div>
-          <button class="case-card__cta case-card__cta--outline" type="button"><span class="brand-squares brand-squares--dark"><span></span><span></span><span></span></span>Finanziert</button>
+          <button class="case-card__cta case-card__cta--outline" type="button">Finanziert</button>
         </div>
       </div>
     </article>
@@ -2426,6 +2441,36 @@
       });
     });
   })();
+</script>
+
+<script>
+(function () {
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.case-card'));
+
+  function fillCard(card) {
+    var fills = card.querySelectorAll('.progress-track__fill');
+    fills.forEach(function (fill) {
+      var target = fill.getAttribute('data-w');
+      if (target) fill.style.width = target;
+    });
+  }
+
+  if (reduceMotion || !('IntersectionObserver' in window)) {
+    cards.forEach(fillCard);
+    return;
+  }
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      fillCard(entry.target);
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.3 });
+
+  cards.forEach(function (card) { observer.observe(card); });
+})();
 </script>
 
 <p id="slideAnnounce" class="visually-hidden" aria-live="polite"></p>
